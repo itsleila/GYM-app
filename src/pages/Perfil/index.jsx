@@ -13,11 +13,12 @@ import Input from '../../components/Input';
 import { Portal, Provider, useTheme } from 'react-native-paper';
 import Modal from '../../components/Modal';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useSession } from '../../Storage/ctx';
+import { useSession } from '../../Services/ctx';
 import { getAuth } from 'firebase/auth';
-import firebaseApp from '../../Storage/firebase.js';
-import { atualizarUsuario } from '../../Storage/userSettings.js';
+import firebaseApp from '../../Services/firebase.js';
+import { atualizarUsuario } from '../../Services/userSettings.js';
 import * as ImagePicker from 'expo-image-picker';
+import uploadImageStorage from '../../Services/storage.js';
 
 export default function Perfil() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function Perfil() {
   const [cameraVisible, setCameraVisible] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const auth = getAuth(firebaseApp);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -72,19 +74,24 @@ export default function Perfil() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        setEmail(user.email);
-        setNome(user.displayName);
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        setUser(currentUser);
+        setEmail(currentUser.email);
+        setNome(currentUser.displayName);
 
         const db = getDatabase(firebaseApp);
-        const usuarioRef = ref(db, `usuarios/${user.uid}`);
+        const usuarioRef = ref(db, `usuarios/${currentUser.uid}`);
         const snapshot = await get(usuarioRef);
 
         if (snapshot.exists()) {
           const userData = snapshot.val();
           setTelefone(userData.phoneNumber || '');
           setDataNascimento(userData.birtdayDate || '');
+          setData((prevData) => ({
+            ...prevData,
+            image: userData.photoURL || '',
+          }));
         }
       }
     };
@@ -98,9 +105,30 @@ export default function Perfil() {
       return;
     }
 
+    let imageUrl = data.image;
+
+    if (data.image?.length > 0) {
+      try {
+        const img = data.image.split('/');
+        if (user) {
+          imageUrl = await uploadImageStorage(
+            data.image,
+            user.uid,
+            img.length - 1,
+          );
+        } else {
+          showSnackbar('Usuário não encontrado.');
+          return;
+        }
+      } catch (error) {
+        console.error('Erro ao fazer upload da imagem:', error);
+        showSnackbar('Erro ao fazer upload da imagem. Tente novamente.');
+        return;
+      }
+    }
     try {
       setLoading(true);
-      await atualizarUsuario(email, nome, telefone, dataNascimento, data.image);
+      await atualizarUsuario(email, nome, telefone, dataNascimento, imageUrl);
       showSnackbar('Dados atualizados com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
@@ -141,7 +169,7 @@ export default function Perfil() {
         <Grid style={styles.headerContainer}>
           <Grid style={styles.header}>
             {data.image ? (
-              <Avatar size={150} source={{ uri: data.image }} />
+              <Avatar size={145} source={{ uri: data.image }} />
             ) : (
               <Avatar size={130} />
             )}

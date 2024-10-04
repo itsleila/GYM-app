@@ -10,26 +10,40 @@ import Grid from '../Grid';
 import { useNavigation } from '@react-navigation/native';
 import IconButton from '../IconButton';
 import Button from '../Button';
-import { useSession } from '../../Storage/ctx.js';
+import { useSession } from '../../Services/ctx.js';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { get, getDatabase, ref } from 'firebase/database';
+import { firebaseApp } from '../../Services/firebase.js';
+import defaultImage from '../../../assets/imgs/Garrafa.png';
 
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent(props) {
-  const [userInfo, setUserInfo] = useState({ name: '', email: '' });
+  const [userInfo, setUserInfo] = useState({ name: '', email: '', image: '' });
   const auth = getAuth();
   const { signOut, session } = useSession();
   const navigation = useNavigation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        const db = getDatabase(firebaseApp);
+        const usuarioRef = ref(db, `usuarios/${user.uid}`);
+        const snapshot = await get(usuarioRef);
+
+        let photoURL;
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          photoURL = userData.photoURL;
+        }
+
         setUserInfo({
           name: user.displayName || user.email,
           email: user.email,
+          image: photoURL,
         });
       } else {
-        setUserInfo({ name: '', email: '' });
+        setUserInfo({ name: '', email: '', image: '' });
       }
     });
 
@@ -60,15 +74,19 @@ function CustomDrawerContent(props) {
             position: 'relative',
           }}
         >
-          <Avatar size={100} />
+          {userInfo.image ? (
+            <Avatar size={120} source={{ uri: userInfo.image }} />
+          ) : (
+            <Avatar size={120} style={{ backgroundColor: 'rgb(50, 0, 71)' }} />
+          )}
           <IconButton
             icon="account-edit"
-            size={33}
+            size={35}
             iconColor="#fff"
             style={{
               position: 'absolute',
-              right: 75,
-              top: 35,
+              right: 60,
+              top: 48,
             }}
           />
           <Text

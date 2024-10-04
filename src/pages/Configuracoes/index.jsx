@@ -5,7 +5,7 @@ import RadioButtonGroup from '../../components/RadioButton/radioButtonGroup';
 import IconButton from '../../components/IconButton';
 import Grid from '../../components/Grid';
 import { useTheme } from 'react-native-paper';
-import { useSession } from '../../Storage/ctx';
+import { useSession } from '../../Services/ctx';
 
 export default function Configuracoes() {
   const { theme, changeTheme } = useSession();
@@ -47,13 +47,13 @@ const styles = StyleSheet.create({
   container: {
     padding: 25,
     margin: 10,
-    backgroundColor: '#d4d4d8',
-    borderColor: '#a1a1aa',
+    backgroundColor: 'rgb(140, 51, 179)',
+    borderColor: 'rgb(50, 0, 71)',
     borderWidth: 5,
     borderRadius: 10,
   },
   radioContainer: {
-    backgroundColor: 'rgb(140, 51, 179)',
+    backgroundColor: 'rgb(248, 216, 255)',
     padding: 20,
     borderRadius: 5,
   },

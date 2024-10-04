@@ -7,7 +7,7 @@ import {
   updateProfile,
   updateEmail,
 } from 'firebase/auth';
-import firebaseApp from './firebase';
+import firebaseApp from './firebase.js';
 import { getDatabase, ref, update as updateDb, set } from 'firebase/database';
 
 /////

@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { TreinosCtx } from './src/pages/Treinos/treinoCtx.jsx';
+import NetworkStatus from './src/constants/Network.js';
 
 import Home from './src/pages/Home/index.jsx';
 import Avaliacao from './src/pages/Avaliacao/index';
@@ -28,7 +29,7 @@ import Drawer from './src/components/Drawer/index.jsx';
 import IconButton from './src/components/IconButton/index.jsx';
 
 import { darkTheme, lightTheme } from './src/constants/Theme.js';
-import { useSession, SessionProvider } from './src/Storage/ctx.js';
+import { useSession, SessionProvider } from './src/Services/ctx.js';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 
@@ -226,6 +227,7 @@ function App() {
           </NavigationContainer>
         </TemaContainer>
       </TreinosCtx>
+      <NetworkStatus />
     </SessionProvider>
   );
 }

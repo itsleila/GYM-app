@@ -12,8 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import Modal from '../../components/Modal';
 import { Portal, Provider } from 'react-native-paper';
 import Grid from '../../components/Grid';
-import { useSession } from '../../Storage/ctx';
-import { redefinirSenha } from '../../Storage/userSettings';
+import { useSession } from '../../Services/ctx';
+import { redefinirSenha } from '../../Services/userSettings';
 import Snackbar from '../../components/Snackbar';
 
 export default function Login() {

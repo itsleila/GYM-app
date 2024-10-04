@@ -10,7 +10,7 @@ import Grid from '../../components/Grid';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { useNavigation } from '@react-navigation/native';
-import { useSession } from '../../Storage/ctx';
+import { useSession } from '../../Services/ctx';
 
 export default function Cadastro() {
   const { signUp } = useSession();
